@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Гитарная практика</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1eb;
+      --panel: #fffdfa;
+      --ink: #20201f;
+      --muted: #696763;
+      --line: #d8d1c7;
+      --accent: #2f6f63;
+      --accent-dark: #24564d;
+      --accent-soft: #d9ece8;
+      --warn: #a05529;
+      --danger: #a83d3d;
+      --shadow: 0 14px 36px rgba(43, 38, 31, .12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+      transform: none;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      padding: 24px;
+      overflow: auto;
+    }
+
+    main {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-width: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.05;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .editor {
+      display: grid;
+      gap: 14px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f7f4ef;
+    }
+
+    .segmented button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .segmented button.active {
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(30, 28, 25, .08);
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      min-height: 42px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 11px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .ghost {
+      border-color: var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .danger {
+      border-color: rgba(168, 61, 61, .3);
+      background: #fff5f2;
+      color: var(--danger);
+    }
+
+    .status {
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .feed {
+      display: grid;
+      gap: 10px;
+      margin-top: 22px;
+      padding-bottom: 30px;
+    }
+
+    .feed-item {
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 70px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .feed-item.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .thumb {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 50px;
+      border-radius: 6px;
+      background: #eee9df;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .feed-meta {
+      min-width: 0;
+    }
+
+    .feed-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .feed-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .icon-button {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      min-height: 34px;
+      padding: 0;
+      border-color: var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 250, .84);
+      backdrop-filter: blur(8px);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 22px;
+      align-items: stretch;
+      min-height: 0;
+      padding: 28px;
+    }
+
+    .practice {
+      display: grid;
+      grid-template-rows: minmax(180px, 1fr) auto;
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .viewer {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      padding: 28px;
+      background: #fdfbf7;
+    }
+
+    .viewer img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .empty,
+    .rest-screen,
+    .finish-screen {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 280px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .rest-screen strong,
+    .finish-screen strong,
+    .empty strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 28px;
+    }
+
+    .transport {
+      display: grid;
+      gap: 16px;
+      padding: 18px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .progress {
+      height: 12px;
+      border-radius: 999px;
+      background: #ede7dd;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: var(--accent);
+      transition: width .2s linear;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .session-panel {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .timer {
+      font-size: 48px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .beat {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .beat span {
+      height: 10px;
+      border-radius: 999px;
+      background: #e6ded2;
+    }
+
+    .beat span.on {
+      background: var(--accent);
+    }
+
+    .now-title {
+      font-size: 22px;
+      font-weight: 850;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .keyboard {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 940px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stage {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      aside,
+      .topbar,
+      .stage {
+        padding: 16px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        justify-content: flex-start;
+      }
+
+      .row,
+      .controls,
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+
+      .feed-item {
+        grid-template-columns: 48px 1fr;
+      }
+
+      .feed-actions {
+        grid-column: 1 / -1;
+      }
+
+      .timer {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div>
+          <h1>Гитарная практика</h1>
+          <p class="small">Лента упражнений, паузы, темп и таймер занятия.</p>
+        </div>
+        <span class="pill"><span class="dot"></span><span id="itemsCount">0</span></span>
+      </div>
+
+      <section class="editor" aria-label="Добавление пункта">
+        <div class="segmented">
+          <button id="exerciseMode" class="active" type="button">Упражнение</button>
+          <button id="restMode" type="button">Пауза</button>
+        </div>
+
+        <label>
+          Название
+          <input id="titleInput" type="text" placeholder="Арпеджио 1-4">
+        </label>
+
+        <div class="row">
+          <label>
+            Минуты
+            <input id="minutesInput" type="number" min="0" max="180" value="5">
+          </label>
+          <label>
+            Секунды
+            <input id="secondsInput" type="number" min="0" max="59" value="0">
+          </label>
+        </div>
+
+        <label id="bpmLabel">
+          Темп, BPM
+          <input id="bpmInput" type="number" min="30" max="260" value="80">
+        </label>
+
+        <label id="imageLabel">
+          Файл картинки или нот
+          <input id="imageInput" type="file" accept="image/*">
+        </label>
+
+        <label id="imageUrlLabel">
+          URL картинки или нот
+          <input id="imageUrlInput" type="url" placeholder="https://example.com/exercise.jpg">
+        </label>
+
+        <button id="addButton" class="primary" type="button">Добавить в ленту</button>
+        <button id="cancelEditButton" class="ghost hidden" type="button">Отменить редактирование</button>
+        <button id="resetButton" class="ghost" type="button">Вернуть примеры</button>
+        <div class="button-row">
+          <button id="exportButton" class="ghost" type="button">Сохранить JSON</button>
+          <button id="importButton" class="ghost" type="button">Загрузить JSON</button>
+        </div>
+        <input id="importInput" class="hidden" type="file" accept="application/json,.json">
+        <p id="fileStatus" class="status"></p>
+      </section>
+
+      <section class="feed" aria-label="Лента упражнений">
+        <h2>Лента</h2>
+        <div id="feedList"></div>
+      </section>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="small" id="sessionState">Сессия не запущена</p>
+          <h2 id="sessionTitle">Подготовьте ленту и нажмите старт</h2>
+        </div>
+        <div class="stats">
+          <span class="pill">Всего: <strong id="totalTime">00:00</strong></span>
+          <span class="pill">Осталось: <strong id="leftTime">00:00</strong></span>
+        </div>
+      </header>
+
+      <section class="stage">
+        <div class="practice">
+          <div id="viewer" class="viewer"></div>
+          <div class="transport">
+            <div class="progress" aria-label="Прогресс текущего пункта"><span id="progressBar"></span></div>
+            <div class="controls">
+              <button id="startButton" class="primary" type="button">Старт</button>
+              <button id="pauseButton" class="ghost" type="button" disabled>Пауза</button>
+              <button id="skipButton" class="ghost" type="button" disabled>Дальше</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="session-panel" aria-label="Текущий пункт">
+          <p class="small">Сейчас</p>
+          <div id="nowTitle" class="now-title">Нет активного упражнения</div>
+          <div id="timer" class="timer">00:00</div>
+          <div class="beat" aria-label="Доли метронома">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <p class="small" id="tempoText">Метроном готов</p>
+          <div class="keyboard">
+            <span>Пробел: старт или пауза</span>
+            <span>Enter: следующий пункт</span>
+          </div>
+          <button id="stopButton" class="danger" type="button" disabled>Остановить занятие</button>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "guitar-practice-feed-v1";
+
+    const defaultItems = [
+      {
+        type: "exercise",
+        title: "Гитарные арпеджио 1-4",
+        duration: 300,
+        bpm: 72,
+        image: "1_gitarnye_arpedgio_1-4.jpg"
+      },
+      {
+        type: "rest",
+        title: "Передохнуть",
+        duration: 60
+      },
+      {
+        type: "exercise",
+        title: "Координация рук",
+        duration: 240,
+        bpm: 88,
+        image: "3_koordinaziya_ruk_gitarista.jpg"
+      }
+    ];
+
+    const state = {
+      mode: "exercise",
+      items: loadItems(),
+      editingIndex: -1,
+      activeIndex: -1,
+      remaining: 0,
+      initialRemaining: 0,
+      running: false,
+      paused: false,
+      finished: false,
+      timerId: null,
+      audioContext: null,
+      metronomeId: null,
+      beat: 0
+    };
+
+    const nodes = {
+      exerciseMode: document.querySelector("#exerciseMode"),
+      restMode: document.querySelector("#restMode"),
+      titleInput: document.querySelector("#titleInput"),
+      minutesInput: document.querySelector("#minutesInput"),
+      secondsInput: document.querySelector("#secondsInput"),
+      bpmInput: document.querySelector("#bpmInput"),
+      bpmLabel: document.querySelector("#bpmLabel"),
+      imageInput: document.querySelector("#imageInput"),
+      imageLabel: document.querySelector("#imageLabel"),
+      imageUrlInput: document.querySelector("#imageUrlInput"),
+      imageUrlLabel: document.querySelector("#imageUrlLabel"),
+      addButton: document.querySelector("#addButton"),
+      cancelEditButton: document.querySelector("#cancelEditButton"),
+      resetButton: document.querySelector("#resetButton"),
+      exportButton: document.querySelector("#exportButton"),
+      importButton: document.querySelector("#importButton"),
+      importInput: document.querySelector("#importInput"),
+      fileStatus: document.querySelector("#fileStatus"),
+      feedList: document.querySelector("#feedList"),
+      itemsCount: document.querySelector("#itemsCount"),
+      totalTime: document.querySelector("#totalTime"),
+      leftTime: document.querySelector("#leftTime"),
+      sessionState: document.querySelector("#sessionState"),
+      sessionTitle: document.querySelector("#sessionTitle"),
+      viewer: document.querySelector("#viewer"),
+      progressBar: document.querySelector("#progressBar"),
+      startButton: document.querySelector("#startButton"),
+      pauseButton: document.querySelector("#pauseButton"),
+      skipButton: document.querySelector("#skipButton"),
+      stopButton: document.querySelector("#stopButton"),
+      nowTitle: document.querySelector("#nowTitle"),
+      timer: document.querySelector("#timer"),
+      tempoText: document.querySelector("#tempoText"),
+      beatDots: Array.from(document.querySelectorAll(".beat span"))
+    };
+
+    function loadItems() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(saved) && saved.length ? normalizeItems(saved) : structuredClone(defaultItems);
+      } catch {
+        return structuredClone(defaultItems);
+      }
+    }
+
+    function saveItems() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    }
+
+    function normalizeItems(rawItems) {
+      if (!Array.isArray(rawItems)) {
+        throw new Error("В JSON должен быть массив items.");
+      }
+
+      return rawItems.map((item, index) => {
+        if (!item || typeof item !== "object") {
+          throw new Error(`Пункт ${index + 1}: неверный формат.`);
+        }
+
+        const type = item.type === "rest" ? "rest" : "exercise";
+        const duration = Math.max(1, Math.round(Number(item.duration) || 0));
+        const title = String(item.title || (type === "rest" ? "Пауза" : "Упражнение")).trim();
+        const normalized = { type, title, duration };
+
+        if (type === "exercise") {
+          normalized.bpm = Math.min(260, Math.max(30, Math.round(Number(item.bpm) || 80)));
+          normalized.image = typeof item.image === "string" ? item.image : "";
+        }
+
+        return normalized;
+      });
+    }
+
+    function formatTime(seconds) {
+      const value = Math.max(0, Math.ceil(seconds));
+      const mins = Math.floor(value / 60).toString().padStart(2, "0");
+      const secs = (value % 60).toString().padStart(2, "0");
+      return `${mins}:${secs}`;
+    }
+
+    function totalDuration(fromIndex = 0) {
+      return state.items.slice(fromIndex).reduce((sum, item) => sum + item.duration, 0);
+    }
+
+    function itemLabel(item) {
+      return item.type === "rest" ? "Пауза" : `${item.bpm} BPM`;
+    }
+
+    function setStatus(message) {
+      nodes.fileStatus.textContent = message;
+    }
+
+    function renderFeed() {
+      nodes.feedList.innerHTML = "";
+      nodes.itemsCount.textContent = state.items.length;
+      nodes.totalTime.textContent = formatTime(totalDuration(0));
+
+      if (!state.items.length) {
+        nodes.feedList.innerHTML = "<p class=\"small\">Лента пустая. Добавьте упражнение или паузу.</p>";
+        return;
+      }
+
+      state.items.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = `feed-item${index === state.activeIndex || index === state.editingIndex ? " active" : ""}`;
+
+        const thumb = document.createElement("div");
+        thumb.className = "thumb";
+        if (item.type === "exercise" && item.image) {
+          const image = document.createElement("img");
+          image.src = item.image;
+          image.alt = "";
+          thumb.append(image);
+        } else {
+          thumb.textContent = item.type === "rest" ? "∥" : "♪";
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "feed-meta";
+        meta.innerHTML = `
+          <div class="feed-title">${escapeHtml(item.title)}</div>
+          <p class="small">${formatTime(item.duration)} · ${itemLabel(item)}</p>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "feed-actions";
+        actions.innerHTML = `
+          <button class="icon-button" type="button" title="Редактировать" data-action="edit" data-index="${index}">✎</button>
+          <button class="icon-button" type="button" title="Выше" data-action="up" data-index="${index}">↑</button>
+          <button class="icon-button" type="button" title="Ниже" data-action="down" data-index="${index}">↓</button>
+          <button class="icon-button" type="button" title="Удалить" data-action="delete" data-index="${index}">×</button>
+        `;
+
+        row.append(thumb, meta, actions);
+        nodes.feedList.append(row);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderStage() {
+      const item = state.items[state.activeIndex];
+      const left = state.running
+        ? totalDuration(state.activeIndex + 1) + state.remaining
+        : totalDuration(0);
+      updateEditorButtons();
+      nodes.leftTime.textContent = formatTime(left);
+      nodes.timer.textContent = formatTime(state.remaining);
+      nodes.pauseButton.textContent = state.paused ? "Продолжить" : "Пауза";
+      nodes.startButton.disabled = state.running || !state.items.length;
+      nodes.pauseButton.disabled = !state.running;
+      nodes.skipButton.disabled = !state.running;
+      nodes.stopButton.disabled = !state.running;
+
+      const progress = state.initialRemaining
+        ? ((state.initialRemaining - state.remaining) / state.initialRemaining) * 100
+        : 0;
+      nodes.progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+
+      if (state.finished) {
+        nodes.sessionState.textContent = "Сессия завершена";
+        nodes.sessionTitle.textContent = "Лента пройдена полностью";
+        nodes.nowTitle.textContent = "Занятие завершено";
+        nodes.tempoText.textContent = "Метроном готов";
+        nodes.timer.textContent = "00:00";
+        nodes.viewer.innerHTML = `
+          <div class="finish-screen">
+            <div>
+              <strong>Занятие завершено</strong>
+              <span>Лента пройдена полностью.</span>
+            </div>
+          </div>
+        `;
+        renderBeat(-1);
+        renderFeed();
+        return;
+      }
+
+      if (!state.running || !item) {
+        nodes.sessionState.textContent = "Сессия не запущена";
+        nodes.sessionTitle.textContent = "Подготовьте ленту и нажмите старт";
+        nodes.nowTitle.textContent = "Нет активного упражнения";
+        nodes.tempoText.textContent = "Метроном готов";
+        nodes.viewer.innerHTML = `
+          <div class="empty">
+            <div>
+              <strong>Готово к занятию</strong>
+              <span>Добавьте упражнения и паузы в нужном порядке.</span>
+            </div>
+          </div>
+        `;
+        renderBeat(-1);
+        renderFeed();
+        return;
+      }
+
+      nodes.sessionState.textContent = state.paused ? "Пауза на месте" : "Сессия идет";
+      nodes.sessionTitle.textContent = `${state.activeIndex + 1} из ${state.items.length}`;
+      nodes.nowTitle.textContent = item.title;
+
+      if (item.type === "rest") {
+        nodes.tempoText.textContent = "Пауза без метронома";
+        nodes.viewer.innerHTML = `
+          <div class="rest-screen">
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <span>Восстановитесь перед следующим упражнением.</span>
+            </div>
+          </div>
+        `;
+      } else {
+        nodes.tempoText.textContent = `${item.bpm} BPM`;
+        nodes.viewer.innerHTML = item.image
+          ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(item.title)}">`
+          : `<div class="empty"><div><strong>${escapeHtml(item.title)}</strong><span>Картинка не выбрана.</span></div></div>`;
+      }
+
+      renderFeed();
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value).replaceAll("`", "&#096;");
+    }
+
+    function renderBeat(activeBeat) {
+      nodes.beatDots.forEach((dot, index) => {
+        dot.classList.toggle("on", index === activeBeat);
+      });
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      nodes.exerciseMode.classList.toggle("active", mode === "exercise");
+      nodes.restMode.classList.toggle("active", mode === "rest");
+      nodes.bpmLabel.classList.toggle("hidden", mode === "rest");
+      nodes.imageLabel.classList.toggle("hidden", mode === "rest");
+      nodes.imageUrlLabel.classList.toggle("hidden", mode === "rest");
+      nodes.titleInput.placeholder = mode === "rest" ? "Передохнуть" : "Арпеджио 1-4";
+      updateEditorButtons();
+    }
+
+    function updateEditorButtons() {
+      const isEditing = state.editingIndex >= 0;
+      nodes.addButton.textContent = isEditing
+        ? "Сохранить изменения"
+        : state.mode === "rest" ? "Добавить паузу" : "Добавить в ленту";
+      nodes.cancelEditButton.classList.toggle("hidden", !isEditing);
+      nodes.exerciseMode.disabled = state.running;
+      nodes.restMode.disabled = state.running;
+      nodes.addButton.disabled = state.running;
+      nodes.resetButton.disabled = state.running;
+      nodes.importButton.disabled = state.running;
+    }
+
+    function fillEditor(item, index) {
+      if (state.running || !item) return;
+      state.editingIndex = index;
+      setMode(item.type);
+      nodes.titleInput.value = item.title;
+      nodes.minutesInput.value = Math.floor(item.duration / 60);
+      nodes.secondsInput.value = item.duration % 60;
+      nodes.bpmInput.value = item.type === "exercise" ? item.bpm : 80;
+      nodes.imageInput.value = "";
+      nodes.imageUrlInput.value = item.type === "exercise" && item.image && !item.image.startsWith("data:")
+        ? item.image
+        : "";
+      setStatus(item.type === "exercise" && item.image
+        ? "Текущая картинка сохранится, если не выбрать файл или новый URL."
+        : "Редактирование пункта ленты.");
+      renderFeed();
+    }
+
+    function clearEditor(keepStatus = false) {
+      state.editingIndex = -1;
+      nodes.titleInput.value = "";
+      nodes.imageInput.value = "";
+      nodes.imageUrlInput.value = "";
+      if (!keepStatus) setStatus("");
+      updateEditorButtons();
+      renderFeed();
+    }
+
+    function durationFromInputs() {
+      const minutes = Number(nodes.minutesInput.value) || 0;
+      const seconds = Number(nodes.secondsInput.value) || 0;
+      return Math.max(1, Math.round(minutes * 60 + Math.min(59, seconds)));
+    }
+
+    async function imageFromInput() {
+      const file = nodes.imageInput.files[0];
+      if (!file) return "";
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function addItem() {
+      if (state.running) return;
+      const duration = durationFromInputs();
+      const fallbackTitle = state.mode === "rest" ? "Пауза" : "Упражнение";
+      const title = nodes.titleInput.value.trim() || fallbackTitle;
+      const previous = state.items[state.editingIndex];
+      const item = { type: state.mode, title, duration };
+
+      if (state.mode === "exercise") {
+        item.bpm = Math.min(260, Math.max(30, Number(nodes.bpmInput.value) || 80));
+        item.image = await imageFromInput()
+          || nodes.imageUrlInput.value.trim()
+          || (previous && previous.type === "exercise" ? previous.image : "");
+      }
+
+      if (state.editingIndex >= 0) {
+        state.items[state.editingIndex] = item;
+        setStatus("Изменения сохранены.");
+      } else {
+        state.items.push(item);
+        setStatus("Пункт добавлен в ленту.");
+      }
+
+      saveItems();
+      clearEditor(true);
+      renderFeed();
+      renderStage();
+    }
+
+    function moveItem(index, direction) {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= state.items.length || state.running) return;
+      const [item] = state.items.splice(index, 1);
+      state.items.splice(nextIndex, 0, item);
+      if (state.editingIndex === index) state.editingIndex = nextIndex;
+      else if (state.editingIndex === nextIndex) state.editingIndex = index;
+      saveItems();
+      renderFeed();
+    }
+
+    function deleteItem(index) {
+      if (state.running) return;
+      state.items.splice(index, 1);
+      if (state.editingIndex === index) clearEditor();
+      else if (state.editingIndex > index) state.editingIndex -= 1;
+      saveItems();
+      renderFeed();
+      renderStage();
+    }
+
+    function exportSettings() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        items: state.items
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const date = new Date().toISOString().slice(0, 10);
+
+      link.href = url;
+      link.download = `guitar-practice-${date}.json`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus("JSON-файл сохранен.");
+    }
+
+    function importSettings(file) {
+      if (!file || state.running) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const rawItems = Array.isArray(parsed) ? parsed : parsed.items;
+          const importedItems = normalizeItems(rawItems);
+          if (!importedItems.length) {
+            throw new Error("В файле нет пунктов ленты.");
+          }
+
+          state.items = importedItems;
+          state.finished = false;
+          clearEditor(true);
+          saveItems();
+          renderFeed();
+          renderStage();
+          setStatus(`Загружено пунктов: ${importedItems.length}.`);
+        } catch (error) {
+          setStatus(`Не удалось загрузить JSON: ${error.message}`);
+        } finally {
+          nodes.importInput.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function startSession() {
+      if (!state.items.length) return;
+      state.activeIndex = 0;
+      state.running = true;
+      state.paused = false;
+      state.finished = false;
+      beginItem();
+    }
+
+    function beginItem() {
+      const item = state.items[state.activeIndex];
+      if (!item) {
+        finishSession();
+        return;
+      }
+
+      state.remaining = item.duration;
+      state.initialRemaining = item.duration;
+      state.beat = 0;
+      renderStage();
+      startTimer();
+      syncMetronome();
+    }
+
+    function startTimer() {
+      clearInterval(state.timerId);
+      state.timerId = setInterval(() => {
+        if (state.paused) return;
+        state.remaining -= 1;
+        if (state.remaining <= 0) {
+          state.remaining = 0;
+          renderStage();
+          nextItem();
+          return;
+        }
+        renderStage();
+      }, 1000);
+    }
+
+    function nextItem() {
+      clearInterval(state.timerId);
+      stopMetronome();
+      state.activeIndex += 1;
+      beginItem();
+    }
+
+    function togglePause() {
+      if (!state.running) return;
+      state.paused = !state.paused;
+      syncMetronome();
+      renderStage();
+    }
+
+    function stopSession() {
+      clearInterval(state.timerId);
+      stopMetronome();
+      state.activeIndex = -1;
+      state.remaining = 0;
+      state.initialRemaining = 0;
+      state.running = false;
+      state.paused = false;
+      state.finished = false;
+      renderStage();
+    }
+
+    function finishSession() {
+      clearInterval(state.timerId);
+      stopMetronome();
+      state.running = false;
+      state.paused = false;
+      state.finished = true;
+      state.activeIndex = -1;
+      state.remaining = 0;
+      state.initialRemaining = 0;
+      renderStage();
+    }
+
+    function getAudioContext() {
+      if (!state.audioContext) {
+        state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (state.audioContext.state === "suspended") {
+        state.audioContext.resume();
+      }
+      return state.audioContext;
+    }
+
+    function playClick(isAccent) {
+      const context = getAudioContext();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const now = context.currentTime;
+
+      oscillator.type = "square";
+      oscillator.frequency.setValueAtTime(isAccent ? 1320 : 880, now);
+      gain.gain.setValueAtTime(isAccent ? 0.24 : 0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.06);
+    }
+
+    function syncMetronome() {
+      stopMetronome();
+      const item = state.items[state.activeIndex];
+      if (!state.running || state.paused || !item || item.type !== "exercise") {
+        renderBeat(-1);
+        return;
+      }
+
+      const interval = 60000 / item.bpm;
+      state.beat = 0;
+      playClick(true);
+      renderBeat(0);
+      state.metronomeId = setInterval(() => {
+        state.beat = (state.beat + 1) % 4;
+        playClick(state.beat === 0);
+        renderBeat(state.beat);
+      }, interval);
+    }
+
+    function stopMetronome() {
+      clearInterval(state.metronomeId);
+      state.metronomeId = null;
+      renderBeat(-1);
+    }
+
+    nodes.exerciseMode.addEventListener("click", () => setMode("exercise"));
+    nodes.restMode.addEventListener("click", () => setMode("rest"));
+    nodes.addButton.addEventListener("click", addItem);
+    nodes.cancelEditButton.addEventListener("click", () => clearEditor());
+    nodes.exportButton.addEventListener("click", exportSettings);
+    nodes.importButton.addEventListener("click", () => nodes.importInput.click());
+    nodes.importInput.addEventListener("change", () => importSettings(nodes.importInput.files[0]));
+    nodes.resetButton.addEventListener("click", () => {
+      if (state.running) return;
+      state.items = structuredClone(defaultItems);
+      clearEditor();
+      saveItems();
+      renderFeed();
+      renderStage();
+    });
+    nodes.feedList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const index = Number(button.dataset.index);
+      if (button.dataset.action === "edit") fillEditor(state.items[index], index);
+      if (button.dataset.action === "up") moveItem(index, -1);
+      if (button.dataset.action === "down") moveItem(index, 1);
+      if (button.dataset.action === "delete") deleteItem(index);
+    });
+    nodes.startButton.addEventListener("click", startSession);
+    nodes.pauseButton.addEventListener("click", togglePause);
+    nodes.skipButton.addEventListener("click", nextItem);
+    nodes.stopButton.addEventListener("click", stopSession);
+    document.addEventListener("keydown", (event) => {
+      if (event.target.matches("input, button")) return;
+      if (event.code === "Space") {
+        event.preventDefault();
+        state.running ? togglePause() : startSession();
+      }
+      if (event.code === "Enter" && state.running) {
+        event.preventDefault();
+        nextItem();
+      }
+    });
+
+    setMode("exercise");
+    renderFeed();
+    renderStage();
+  </script>
+</body>
+</html>
