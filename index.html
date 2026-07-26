@@ -59,14 +59,14 @@
 
     .app {
       display: grid;
-      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      grid-template-columns: minmax(270px, 340px) minmax(0, 1fr);
       min-height: 100vh;
     }
 
     aside {
       border-right: 1px solid var(--line);
       background: var(--panel);
-      padding: 24px;
+      padding: 18px;
       overflow: auto;
     }
 
@@ -81,7 +81,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     h1,
@@ -92,7 +92,7 @@
     }
 
     h1 {
-      font-size: 28px;
+      font-size: 23px;
       line-height: 1.05;
     }
 
@@ -129,8 +129,8 @@
 
     .editor {
       display: grid;
-      gap: 14px;
-      padding-bottom: 22px;
+      gap: 10px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--line);
     }
 
@@ -194,6 +194,25 @@
       gap: 10px;
     }
 
+    .source-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .file-button {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
     .primary {
       background: var(--accent);
       color: #fff;
@@ -225,8 +244,8 @@
     .feed {
       display: grid;
       gap: 10px;
-      margin-top: 22px;
-      padding-bottom: 30px;
+      margin-top: 16px;
+      padding-bottom: 18px;
     }
 
     .feed-item {
@@ -299,7 +318,7 @@
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 18px;
       align-items: center;
-      padding: 20px 28px;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--line);
       background: rgba(255, 253, 250, .84);
       backdrop-filter: blur(8px);
@@ -314,11 +333,11 @@
 
     .stage {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 280px;
-      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      gap: 14px;
       align-items: stretch;
       min-height: 0;
-      padding: 28px;
+      padding: 16px 20px 20px;
     }
 
     .practice {
@@ -337,7 +356,7 @@
       display: grid;
       place-items: center;
       min-height: 0;
-      padding: 28px;
+      padding: 16px;
       background: #fdfbf7;
     }
 
@@ -373,8 +392,8 @@
 
     .transport {
       display: grid;
-      gap: 16px;
-      padding: 18px;
+      gap: 12px;
+      padding: 14px;
       border-top: 1px solid var(--line);
       background: #fff;
     }
@@ -403,8 +422,8 @@
     .session-panel {
       display: grid;
       align-content: start;
-      gap: 14px;
-      padding: 18px;
+      gap: 12px;
+      padding: 14px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
@@ -412,7 +431,7 @@
     }
 
     .timer {
-      font-size: 48px;
+      font-size: 42px;
       line-height: 1;
       font-variant-numeric: tabular-nums;
       font-weight: 850;
@@ -450,6 +469,27 @@
       line-height: 1.4;
     }
 
+    .metronome-settings {
+      display: grid;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .check-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .check-label input {
+      width: 18px;
+      min-height: auto;
+      accent-color: var(--accent);
+    }
+
     .hidden {
       display: none !important;
     }
@@ -466,6 +506,18 @@
 
       .stage {
         grid-template-columns: 1fr;
+      }
+
+      .session-panel {
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+      }
+
+      .session-panel > .small:first-child,
+      .session-panel .keyboard,
+      .session-panel .metronome-settings,
+      .session-panel #stopButton {
+        grid-column: 1 / -1;
       }
     }
 
@@ -490,6 +542,10 @@
         grid-template-columns: 1fr;
       }
 
+      .source-control {
+        grid-template-columns: 1fr;
+      }
+
       .feed-item {
         grid-template-columns: 48px 1fr;
       }
@@ -500,6 +556,20 @@
 
       .timer {
         font-size: 40px;
+      }
+
+      .viewer {
+        min-height: 50vh;
+        padding: 10px;
+      }
+
+      .practice {
+        min-height: calc(100vh - 32px);
+      }
+
+      .session-panel {
+        grid-template-columns: 1fr;
+        align-items: stretch;
       }
     }
   </style>
@@ -543,13 +613,12 @@
         </label>
 
         <label id="imageLabel">
-          Файл картинки или нот
-          <input id="imageInput" type="file" accept="image/*">
-        </label>
-
-        <label id="imageUrlLabel">
-          URL картинки или нот
-          <input id="imageUrlInput" type="url" placeholder="https://example.com/exercise.jpg">
+          Картинка или ноты
+          <span class="source-control">
+            <input id="imageUrlInput" type="url" placeholder="Вставьте URL">
+            <span id="imageFileButton" class="file-button" role="button" tabindex="0">Выбрать файл</span>
+            <input id="imageInput" class="hidden" type="file" accept="image/*">
+          </span>
         </label>
 
         <button id="addButton" class="primary" type="button">Добавить в ленту</button>
@@ -560,6 +629,10 @@
           <button id="importButton" class="ghost" type="button">Загрузить JSON</button>
         </div>
         <input id="importInput" class="hidden" type="file" accept="application/json,.json">
+        <div class="source-control">
+          <input id="importUrlInput" type="url" placeholder="URL JSON-конфига (в т.ч. GitHub)">
+          <button id="importUrlButton" class="ghost" type="button">По URL</button>
+        </div>
         <p id="fileStatus" class="status"></p>
       </section>
 
@@ -602,6 +675,21 @@
             <span></span><span></span><span></span><span></span>
           </div>
           <p class="small" id="tempoText">Метроном готов</p>
+          <div class="metronome-settings" aria-label="Настройки метронома">
+            <label>
+              Долей в такте
+              <select id="beatsPerBarInput">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+              </select>
+            </label>
+            <label class="check-label"><input id="muteFirstClickInput" type="checkbox"> Без первого (акцентного) клика</label>
+          </div>
           <div class="keyboard">
             <span>Пробел: старт или пауза</span>
             <span>Enter: следующий пункт</span>
@@ -614,27 +702,32 @@
 
   <script>
     const STORAGE_KEY = "guitar-practice-feed-v1";
+    const METRONOME_KEY = "guitar-practice-metronome-v1";
 
+    const EXERCISES_GITHUB_URL = "https://github.com/meskalito89/exercises/blob/master/exercises/";
+    const exerciseImage = (filename) => `${EXERCISES_GITHUB_URL}${filename}`;
     const defaultItems = [
-      {
-        type: "exercise",
-        title: "Гитарные арпеджио 1-4",
-        duration: 300,
-        bpm: 72,
-        image: "1_gitarnye_arpedgio_1-4.jpg"
-      },
-      {
-        type: "rest",
-        title: "Передохнуть",
-        duration: 60
-      },
-      {
-        type: "exercise",
-        title: "Координация рук",
-        duration: 240,
-        bpm: 88,
-        image: "3_koordinaziya_ruk_gitarista.jpg"
-      }
+      { type: "rest", title: "отдых", duration: 10 },
+      { type: "exercise", title: "Гитарные арпеджио 1-4", duration: 300, bpm: 50, image: exerciseImage("1_gitarnye_arpedgio_1-4.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Координация рук", duration: 240, bpm: 50, image: exerciseImage("3_koordinaziya_ruk_gitarista.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Легато", duration: 360, bpm: 50, image: exerciseImage("4_upragneniya_na_legato_dlya_levoi_ruki.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Пассажи 1", duration: 180, bpm: 48, image: exerciseImage("5_passagi_i_gammy_a.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Пассажи 2", duration: 190, bpm: 50, image: exerciseImage("6_passagi_i_gammy_b.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Упражнение", duration: 210, bpm: 50, image: exerciseImage("7_passagi_i_gammy_c.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Пассажи 3", duration: 120, bpm: 50, image: exerciseImage("8_passagi_i_gammy_d.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Пассажи 4", duration: 180, bpm: 50, image: exerciseImage("9_passagi_i_gammy_e.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "Легато", duration: 300, bpm: 50, image: exerciseImage("10_legato_na_gitare_c_d.jpg") },
+      { type: "rest", title: "Пауза", duration: 10 },
+      { type: "exercise", title: "арпеджио", duration: 720, bpm: 50, image: exerciseImage("11_gitarnye_arpedgio_7-12.jpg") },
+      { type: "exercise", title: "Джентельмены удачи", duration: 600, bpm: 48, image: "" }
     ];
 
     const state = {
@@ -650,7 +743,8 @@
       timerId: null,
       audioContext: null,
       metronomeId: null,
-      beat: 0
+      beat: 0,
+      metronome: loadMetronomeSettings()
     };
 
     const nodes = {
@@ -663,14 +757,16 @@
       bpmLabel: document.querySelector("#bpmLabel"),
       imageInput: document.querySelector("#imageInput"),
       imageLabel: document.querySelector("#imageLabel"),
+      imageFileButton: document.querySelector("#imageFileButton"),
       imageUrlInput: document.querySelector("#imageUrlInput"),
-      imageUrlLabel: document.querySelector("#imageUrlLabel"),
       addButton: document.querySelector("#addButton"),
       cancelEditButton: document.querySelector("#cancelEditButton"),
       resetButton: document.querySelector("#resetButton"),
       exportButton: document.querySelector("#exportButton"),
       importButton: document.querySelector("#importButton"),
       importInput: document.querySelector("#importInput"),
+      importUrlInput: document.querySelector("#importUrlInput"),
+      importUrlButton: document.querySelector("#importUrlButton"),
       fileStatus: document.querySelector("#fileStatus"),
       feedList: document.querySelector("#feedList"),
       itemsCount: document.querySelector("#itemsCount"),
@@ -687,7 +783,9 @@
       nowTitle: document.querySelector("#nowTitle"),
       timer: document.querySelector("#timer"),
       tempoText: document.querySelector("#tempoText"),
-      beatDots: Array.from(document.querySelectorAll(".beat span"))
+      beatDots: Array.from(document.querySelectorAll(".beat span")),
+      beatsPerBarInput: document.querySelector("#beatsPerBarInput"),
+      muteFirstClickInput: document.querySelector("#muteFirstClickInput")
     };
 
     function loadItems() {
@@ -701,6 +799,22 @@
 
     function saveItems() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    }
+
+    function loadMetronomeSettings() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(METRONOME_KEY));
+        return {
+          beatsPerBar: Math.min(8, Math.max(2, Number(saved?.beatsPerBar) || 4)),
+          muteFirstClick: Boolean(saved?.muteFirstClick)
+        };
+      } catch {
+        return { beatsPerBar: 4, muteFirstClick: false };
+      }
+    }
+
+    function saveMetronomeSettings() {
+      localStorage.setItem(METRONOME_KEY, JSON.stringify(state.metronome));
     }
 
     function normalizeItems(rawItems) {
@@ -764,7 +878,7 @@
         thumb.className = "thumb";
         if (item.type === "exercise" && item.image) {
           const image = document.createElement("img");
-          image.src = item.image;
+          image.src = githubRawUrl(item.image);
           image.alt = "";
           thumb.append(image);
         } else {
@@ -874,7 +988,7 @@
       } else {
         nodes.tempoText.textContent = `${item.bpm} BPM`;
         nodes.viewer.innerHTML = item.image
-          ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(item.title)}">`
+          ? `<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">`
           : `<div class="empty"><div><strong>${escapeHtml(item.title)}</strong><span>Картинка не выбрана.</span></div></div>`;
       }
 
@@ -886,6 +1000,13 @@
     }
 
     function renderBeat(activeBeat) {
+      const needed = state.metronome.beatsPerBar;
+      if (nodes.beatDots.length !== needed) {
+        const beat = document.querySelector(".beat");
+        beat.innerHTML = "";
+        for (let index = 0; index < needed; index += 1) beat.append(document.createElement("span"));
+        nodes.beatDots = Array.from(beat.querySelectorAll("span"));
+      }
       nodes.beatDots.forEach((dot, index) => {
         dot.classList.toggle("on", index === activeBeat);
       });
@@ -897,7 +1018,6 @@
       nodes.restMode.classList.toggle("active", mode === "rest");
       nodes.bpmLabel.classList.toggle("hidden", mode === "rest");
       nodes.imageLabel.classList.toggle("hidden", mode === "rest");
-      nodes.imageUrlLabel.classList.toggle("hidden", mode === "rest");
       nodes.titleInput.placeholder = mode === "rest" ? "Передохнуть" : "Арпеджио 1-4";
       updateEditorButtons();
     }
@@ -913,6 +1033,7 @@
       nodes.addButton.disabled = state.running;
       nodes.resetButton.disabled = state.running;
       nodes.importButton.disabled = state.running;
+      nodes.importUrlButton.disabled = state.running;
     }
 
     function fillEditor(item, index) {
@@ -1015,7 +1136,8 @@
       const payload = {
         version: 1,
         exportedAt: new Date().toISOString(),
-        items: state.items
+        items: state.items,
+        metronome: state.metronome
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -1031,31 +1153,35 @@
       setStatus("JSON-файл сохранен.");
     }
 
+    function applyImportedSettings(parsed) {
+      const rawItems = Array.isArray(parsed) ? parsed : parsed.items;
+      const importedItems = normalizeItems(rawItems);
+      if (!importedItems.length) throw new Error("В конфиге нет пунктов ленты.");
+
+      state.items = importedItems;
+      if (parsed?.metronome && typeof parsed.metronome === "object") {
+        state.metronome = {
+          beatsPerBar: Math.min(8, Math.max(2, Number(parsed.metronome.beatsPerBar) || 4)),
+          muteFirstClick: Boolean(parsed.metronome.muteFirstClick)
+        };
+        saveMetronomeSettings();
+        renderMetronomeSettings();
+      }
+      state.finished = false;
+      clearEditor(true);
+      saveItems();
+      renderFeed();
+      renderStage();
+      setStatus(`Загружено пунктов: ${importedItems.length}.`);
+    }
+
     function importSettings(file) {
       if (!file || state.running) return;
-
       const reader = new FileReader();
       reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result);
-          const rawItems = Array.isArray(parsed) ? parsed : parsed.items;
-          const importedItems = normalizeItems(rawItems);
-          if (!importedItems.length) {
-            throw new Error("В файле нет пунктов ленты.");
-          }
-
-          state.items = importedItems;
-          state.finished = false;
-          clearEditor(true);
-          saveItems();
-          renderFeed();
-          renderStage();
-          setStatus(`Загружено пунктов: ${importedItems.length}.`);
-        } catch (error) {
-          setStatus(`Не удалось загрузить JSON: ${error.message}`);
-        } finally {
-          nodes.importInput.value = "";
-        }
+        try { applyImportedSettings(JSON.parse(reader.result)); }
+        catch (error) { setStatus(`Не удалось загрузить JSON: ${error.message}`); }
+        finally { nodes.importInput.value = ""; }
       };
       reader.readAsText(file);
     }
@@ -1174,11 +1300,13 @@
 
       const interval = 60000 / item.bpm;
       state.beat = 0;
-      playClick(true);
+      if (!state.metronome.muteFirstClick) playClick(true);
       renderBeat(0);
       state.metronomeId = setInterval(() => {
-        state.beat = (state.beat + 1) % 4;
-        playClick(state.beat === 0);
+        state.beat = (state.beat + 1) % state.metronome.beatsPerBar;
+        if (!(state.metronome.muteFirstClick && state.beat === 0)) {
+          playClick(state.beat === 0);
+        }
         renderBeat(state.beat);
       }, interval);
     }
@@ -1189,6 +1317,48 @@
       renderBeat(-1);
     }
 
+    function renderMetronomeSettings() {
+      nodes.beatsPerBarInput.value = String(state.metronome.beatsPerBar);
+      nodes.muteFirstClickInput.checked = state.metronome.muteFirstClick;
+      renderBeat(-1);
+    }
+
+    function githubRawUrl(url) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.hostname === "github.com") {
+          const parts = parsed.pathname.split("/").filter(Boolean);
+          if (parts.length >= 5 && parts[2] === "blob") {
+            return `https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${parts.slice(3).join("/")}`;
+          }
+        }
+      } catch {
+        // The browser will provide a clear error below for an invalid URL.
+      }
+      return url;
+    }
+
+    async function importSettingsFromUrl() {
+      if (state.running) return;
+      const suppliedUrl = nodes.importUrlInput.value.trim();
+      if (!suppliedUrl) {
+        setStatus("Вставьте URL JSON-конфига.");
+        return;
+      }
+
+      nodes.importUrlButton.disabled = true;
+      setStatus("Загрузка JSON по сети…");
+      try {
+        const response = await fetch(githubRawUrl(suppliedUrl), { headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error(`сервер вернул ${response.status}`);
+        applyImportedSettings(JSON.parse(await response.text()));
+      } catch (error) {
+        setStatus(`Не удалось загрузить JSON по URL: ${error.message}`);
+      } finally {
+        updateEditorButtons();
+      }
+    }
+
     nodes.exerciseMode.addEventListener("click", () => setMode("exercise"));
     nodes.restMode.addEventListener("click", () => setMode("rest"));
     nodes.addButton.addEventListener("click", addItem);
@@ -1196,6 +1366,35 @@
     nodes.exportButton.addEventListener("click", exportSettings);
     nodes.importButton.addEventListener("click", () => nodes.importInput.click());
     nodes.importInput.addEventListener("change", () => importSettings(nodes.importInput.files[0]));
+    nodes.importUrlButton.addEventListener("click", importSettingsFromUrl);
+    nodes.imageFileButton.addEventListener("click", () => nodes.imageInput.click());
+    nodes.imageFileButton.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        nodes.imageInput.click();
+      }
+    });
+    nodes.imageInput.addEventListener("change", () => {
+      const file = nodes.imageInput.files[0];
+      if (file) {
+        nodes.imageUrlInput.value = "";
+        setStatus(`Выбран файл: ${file.name}`);
+      }
+    });
+    nodes.imageUrlInput.addEventListener("input", () => {
+      if (nodes.imageUrlInput.value.trim()) nodes.imageInput.value = "";
+    });
+    nodes.beatsPerBarInput.addEventListener("change", () => {
+      state.metronome.beatsPerBar = Number(nodes.beatsPerBarInput.value);
+      saveMetronomeSettings();
+      if (state.running && !state.paused) syncMetronome();
+      else renderBeat(-1);
+    });
+    nodes.muteFirstClickInput.addEventListener("change", () => {
+      state.metronome.muteFirstClick = nodes.muteFirstClickInput.checked;
+      saveMetronomeSettings();
+      if (state.running && !state.paused) syncMetronome();
+    });
     nodes.resetButton.addEventListener("click", () => {
       if (state.running) return;
       state.items = structuredClone(defaultItems);
@@ -1230,6 +1429,7 @@
     });
 
     setMode("exercise");
+    renderMetronomeSettings();
     renderFeed();
     renderStage();
   </script>
