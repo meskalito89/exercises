@@ -34,7 +34,8 @@
 
     button,
     input,
-    select {
+    select,
+    textarea {
       font: inherit;
     }
 
@@ -165,7 +166,8 @@
     }
 
     input,
-    select {
+    select,
+    textarea {
       min-height: 42px;
       width: 100%;
       border: 1px solid var(--line);
@@ -176,8 +178,14 @@
       outline: none;
     }
 
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
     input:focus,
-    select:focus {
+    select:focus,
+    textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
@@ -360,7 +368,15 @@
       background: #fdfbf7;
     }
 
+    .viewer.exercise-viewer {
+      grid-template-rows: auto minmax(0, 1fr);
+      place-items: stretch;
+      gap: 10px;
+    }
+
     .viewer img {
+      justify-self: center;
+      align-self: center;
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
@@ -458,6 +474,31 @@
       font-size: 22px;
       font-weight: 850;
       line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .exercise-notes {
+      align-self: start;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .exercise-notes summary {
+      padding: 9px 11px;
+      cursor: pointer;
+      color: var(--accent-dark);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .exercise-notes p {
+      padding: 0 11px 11px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
 
@@ -572,6 +613,20 @@
         align-items: stretch;
       }
     }
+
+    @media (max-width: 940px) and (max-height: 620px) and (orientation: landscape) {
+      .stage {
+        padding: 10px;
+      }
+
+      .practice {
+        min-height: calc(100vh - 20px);
+      }
+
+      .viewer {
+        padding: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -610,6 +665,11 @@
         <label id="bpmLabel">
           Темп, BPM
           <input id="bpmInput" type="number" min="30" max="260" value="80">
+        </label>
+
+        <label id="descriptionLabel">
+          Описание упражнения
+          <textarea id="descriptionInput" placeholder="Например: играйте медленно, следите за ровностью звука"></textarea>
         </label>
 
         <label id="imageLabel">
@@ -755,6 +815,8 @@
       secondsInput: document.querySelector("#secondsInput"),
       bpmInput: document.querySelector("#bpmInput"),
       bpmLabel: document.querySelector("#bpmLabel"),
+      descriptionInput: document.querySelector("#descriptionInput"),
+      descriptionLabel: document.querySelector("#descriptionLabel"),
       imageInput: document.querySelector("#imageInput"),
       imageLabel: document.querySelector("#imageLabel"),
       imageFileButton: document.querySelector("#imageFileButton"),
@@ -835,6 +897,7 @@
         if (type === "exercise") {
           normalized.bpm = Math.min(260, Math.max(30, Math.round(Number(item.bpm) || 80)));
           normalized.image = typeof item.image === "string" ? item.image : "";
+          normalized.description = typeof item.description === "string" ? item.description.trim() : "";
         }
 
         return normalized;
@@ -935,6 +998,7 @@
       nodes.progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
 
       if (state.finished) {
+        nodes.viewer.classList.remove("exercise-viewer");
         nodes.sessionState.textContent = "Сессия завершена";
         nodes.sessionTitle.textContent = "Лента пройдена полностью";
         nodes.nowTitle.textContent = "Занятие завершено";
@@ -954,6 +1018,7 @@
       }
 
       if (!state.running || !item) {
+        nodes.viewer.classList.remove("exercise-viewer");
         nodes.sessionState.textContent = "Сессия не запущена";
         nodes.sessionTitle.textContent = "Подготовьте ленту и нажмите старт";
         nodes.nowTitle.textContent = "Нет активного упражнения";
@@ -976,6 +1041,7 @@
       nodes.nowTitle.textContent = item.title;
 
       if (item.type === "rest") {
+        nodes.viewer.classList.remove("exercise-viewer");
         nodes.tempoText.textContent = "Пауза без метронома";
         nodes.viewer.innerHTML = `
           <div class="rest-screen">
@@ -986,9 +1052,10 @@
           </div>
         `;
       } else {
+        nodes.viewer.classList.add("exercise-viewer");
         nodes.tempoText.textContent = `${item.bpm} BPM`;
         nodes.viewer.innerHTML = item.image
-          ? `<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">`
+          ? `${item.description ? `<details class="exercise-notes"><summary>Описание упражнения</summary><p>${escapeHtml(item.description)}</p></details>` : ""}<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">`
           : `<div class="empty"><div><strong>${escapeHtml(item.title)}</strong><span>Картинка не выбрана.</span></div></div>`;
       }
 
@@ -1017,6 +1084,7 @@
       nodes.exerciseMode.classList.toggle("active", mode === "exercise");
       nodes.restMode.classList.toggle("active", mode === "rest");
       nodes.bpmLabel.classList.toggle("hidden", mode === "rest");
+      nodes.descriptionLabel.classList.toggle("hidden", mode === "rest");
       nodes.imageLabel.classList.toggle("hidden", mode === "rest");
       nodes.titleInput.placeholder = mode === "rest" ? "Передохнуть" : "Арпеджио 1-4";
       updateEditorButtons();
@@ -1044,6 +1112,7 @@
       nodes.minutesInput.value = Math.floor(item.duration / 60);
       nodes.secondsInput.value = item.duration % 60;
       nodes.bpmInput.value = item.type === "exercise" ? item.bpm : 80;
+      nodes.descriptionInput.value = item.type === "exercise" ? item.description || "" : "";
       nodes.imageInput.value = "";
       nodes.imageUrlInput.value = item.type === "exercise" && item.image && !item.image.startsWith("data:")
         ? item.image
@@ -1057,6 +1126,7 @@
     function clearEditor(keepStatus = false) {
       state.editingIndex = -1;
       nodes.titleInput.value = "";
+      nodes.descriptionInput.value = "";
       nodes.imageInput.value = "";
       nodes.imageUrlInput.value = "";
       if (!keepStatus) setStatus("");
@@ -1092,6 +1162,7 @@
 
       if (state.mode === "exercise") {
         item.bpm = Math.min(260, Math.max(30, Number(nodes.bpmInput.value) || 80));
+        item.description = nodes.descriptionInput.value.trim();
         item.image = await imageFromInput()
           || nodes.imageUrlInput.value.trim()
           || (previous && previous.type === "exercise" ? previous.image : "");
@@ -1417,7 +1488,7 @@
     nodes.skipButton.addEventListener("click", nextItem);
     nodes.stopButton.addEventListener("click", stopSession);
     document.addEventListener("keydown", (event) => {
-      if (event.target.matches("input, button")) return;
+      if (event.target.matches("input, textarea, select, button")) return;
       if (event.code === "Space") {
         event.preventDefault();
         state.running ? togglePause() : startSession();
