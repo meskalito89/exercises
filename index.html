@@ -107,12 +107,6 @@
           <div id="viewer" class="viewer"></div>
           <div class="transport">
             <div class="progress" aria-label="Прогресс текущего пункта"><span id="progressBar"></span></div>
-            <div class="controls">
-              <button id="startButton" class="primary" type="button">Старт</button>
-              <button id="pauseButton" class="ghost" type="button" disabled>Пауза</button>
-              <button id="skipButton" class="ghost" type="button" disabled>Дальше</button>
-              <button id="stopButton" class="danger" type="button" disabled>Стоп</button>
-            </div>
           </div>
         </div>
 
@@ -151,6 +145,12 @@
               <button type="button" class="tuner-note" data-frequency="440" aria-pressed="false">A</button>
             </div>
           </section>
+          <div class="controls" aria-label="Управление занятием">
+            <button id="startButton" class="primary" type="button">Старт</button>
+            <button id="pauseButton" class="ghost" type="button" disabled>Пауза</button>
+            <button id="skipButton" class="ghost" type="button" disabled>Дальше</button>
+            <button id="stopButton" class="danger" type="button" disabled>Стоп</button>
+          </div>
           <div class="keyboard">
             <span>Пробел: старт или пауза</span>
             <span>Enter: следующий пункт</span>

@@ -69,7 +69,7 @@
 
     main {
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
       min-width: 0;
     }
 
@@ -375,15 +375,16 @@
     .stage {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 230px;
-      gap: 14px;
+      gap: 0;
       align-items: stretch;
       min-height: 0;
-      padding: 16px 20px 20px;
+      padding: 0;
     }
 
     .practice {
       display: grid;
       grid-template-rows: minmax(180px, 1fr) auto;
+      position: relative;
       min-width: 0;
       min-height: 0;
       border: 1px solid var(--line);
@@ -397,7 +398,7 @@
       display: grid;
       place-items: center;
       min-height: 0;
-      padding: 16px;
+      padding: 0;
       background: #fdfbf7;
     }
 
@@ -458,29 +459,11 @@
     }
 
     .transport {
-      display: grid;
-      gap: 12px;
-      padding: 14px;
-      border-top: 1px solid var(--line);
-      background: #fff;
-    }
-
-    /* Управление занятием всегда доступно, даже при длинной ленте. */
-    .transport {
-      position: fixed;
-      left: 50%;
-      right: auto;
-      bottom: 20px;
-      z-index: 10;
-      width: min(560px, calc(100vw - 380px));
-      transform: translateX(-50%);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: var(--shadow);
-    }
-
-    .stage {
-      padding-bottom: 112px;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1;
     }
 
     .next-exercise-preview {
@@ -515,8 +498,8 @@
     }
 
     .progress {
-      height: 12px;
-      border-radius: 999px;
+      height: 5px;
+      border-radius: 0;
       background: #ede7dd;
       overflow: hidden;
     }
@@ -531,7 +514,7 @@
 
     .controls {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
 
@@ -715,15 +698,8 @@
       .session-panel .keyboard,
       .session-panel .metronome-settings,
       .session-panel .tuner,
-      .session-panel #stopButton {
+      .session-panel .controls {
         grid-column: 1 / -1;
-      }
-
-      .transport {
-        left: 50%;
-        right: auto;
-        bottom: 16px;
-        width: calc(100vw - 32px);
       }
 
       #feedList {
@@ -731,11 +707,27 @@
       }
     }
 
+    @media (min-width: 941px) {
+      main {
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .stage {
+        height: 100%;
+        overflow: hidden;
+      }
+    }
+
     @media (max-width: 620px) {
       aside,
-      .topbar,
-      .stage {
+      .topbar {
         padding: 16px;
+      }
+
+      .stage {
+        padding: 0;
       }
 
       .topbar {
@@ -747,7 +739,6 @@
       }
 
       .row,
-      .controls,
       .button-row {
         grid-template-columns: 1fr;
       }
@@ -770,7 +761,7 @@
 
       .viewer {
         min-height: 50vh;
-        padding: 10px;
+        padding: 0;
       }
 
       .viewer.exercise-viewer.rotated-exercise {
@@ -818,24 +809,16 @@
       }
 
       .app.phone-mode > aside,
-      .app.phone-mode .topbar,
-      .app.phone-mode .session-panel {
+      .app.phone-mode .topbar {
+        display: none;
+      }
+
+      .app.phone-mode .session-panel > :not(.controls) {
         display: none;
       }
 
       .practice {
         min-height: calc(100vh - 32px);
-      }
-
-      .stage {
-        padding-bottom: 190px;
-      }
-
-      .transport {
-        bottom: 10px;
-        left: 50%;
-        right: auto;
-        width: calc(100vw - 20px);
       }
 
       .session-panel {
@@ -846,7 +829,7 @@
 
     @media (max-width: 940px) and (max-height: 620px) and (orientation: landscape) {
       .stage {
-        padding: 10px;
+        padding: 0;
       }
 
       .practice {
@@ -854,6 +837,6 @@
       }
 
       .viewer {
-        padding: 8px;
+        padding: 0;
       }
     }
