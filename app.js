@@ -1,5 +1,7 @@
     const STORAGE_KEY = "guitar-practice-feed-v1";
     const METRONOME_KEY = "guitar-practice-metronome-v1";
+    const EXERCISES_TREE_API_URL = "https://api.github.com/repos/meskalito89/exercises/git/trees/master?recursive=1";
+    const EXERCISES_RAW_BASE_URL = "https://raw.githubusercontent.com/meskalito89/exercises/master/";
 
     const EXERCISES_GITHUB_URL = "https://github.com/meskalito89/exercises/blob/master/exercises/";
     const exerciseImage = (filename) => `${EXERCISES_GITHUB_URL}${filename}`;
@@ -70,6 +72,8 @@
       importInput: document.querySelector("#importInput"),
       importUrlInput: document.querySelector("#importUrlInput"),
       importUrlButton: document.querySelector("#importUrlButton"),
+      readyExercisesSelect: document.querySelector("#readyExercisesSelect"),
+      readyExercisesButton: document.querySelector("#readyExercisesButton"),
       fileStatus: document.querySelector("#fileStatus"),
       feedList: document.querySelector("#feedList"),
       itemsCount: document.querySelector("#itemsCount"),
@@ -355,6 +359,8 @@
       nodes.resetButton.disabled = state.running;
       nodes.importButton.disabled = state.running;
       nodes.importUrlButton.disabled = state.running;
+      nodes.readyExercisesSelect.disabled = state.running || nodes.readyExercisesSelect.options.length <= 1;
+      nodes.readyExercisesButton.disabled = state.running || !nodes.readyExercisesSelect.value;
     }
 
     function fillEditor(item, index) {
@@ -722,6 +728,38 @@
       }
     }
 
+    async function loadReadyExercises() {
+      try {
+        const response = await fetch(EXERCISES_TREE_API_URL, { headers: { Accept: "application/vnd.github+json" } });
+        if (!response.ok) throw new Error(`сервер вернул ${response.status}`);
+        const catalog = (await response.json()).tree
+          .filter((entry) => entry.type === "blob" && entry.path.startsWith("exercises/") && entry.path.endsWith(".json"))
+          .map((entry) => entry.path)
+          .sort((left, right) => left.localeCompare(right, "ru"));
+
+        if (!catalog.length) throw new Error("JSON-файлы не найдены");
+        nodes.readyExercisesSelect.innerHTML = '<option value="">Выберите готовое упражнение</option>';
+        catalog.forEach((path) => {
+          const option = document.createElement("option");
+          option.value = `${EXERCISES_RAW_BASE_URL}${path}`;
+          option.textContent = path.replace(/^exercises\//, "");
+          nodes.readyExercisesSelect.append(option);
+        });
+      } catch (error) {
+        nodes.readyExercisesSelect.innerHTML = '<option value="">Не удалось загрузить список</option>';
+        setStatus(`Не удалось получить готовые упражнения: ${error.message}`);
+      } finally {
+        updateEditorButtons();
+      }
+    }
+
+    function importReadyExercise() {
+      const url = nodes.readyExercisesSelect.value;
+      if (!url || state.running) return;
+      nodes.importUrlInput.value = url;
+      importSettingsFromUrl();
+    }
+
     nodes.exerciseMode.addEventListener("click", () => setMode("exercise"));
     nodes.restMode.addEventListener("click", () => setMode("rest"));
     nodes.addButton.addEventListener("click", addItem);
@@ -736,6 +774,8 @@
     nodes.importButton.addEventListener("click", () => nodes.importInput.click());
     nodes.importInput.addEventListener("change", () => importSettings(nodes.importInput.files[0]));
     nodes.importUrlButton.addEventListener("click", importSettingsFromUrl);
+    nodes.readyExercisesSelect.addEventListener("change", updateEditorButtons);
+    nodes.readyExercisesButton.addEventListener("click", importReadyExercise);
     nodes.imageFileButton.addEventListener("click", () => nodes.imageInput.click());
     nodes.imageFileButton.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
@@ -809,3 +849,4 @@
     renderMetronomeSettings();
     renderFeed();
     renderStage();
+    loadReadyExercises();

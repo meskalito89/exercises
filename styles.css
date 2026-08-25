@@ -263,6 +263,18 @@
       line-height: 1.4;
     }
 
+    .contribute {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .contribute a {
+      color: var(--accent-dark);
+      overflow-wrap: anywhere;
+    }
+
     .feed {
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
