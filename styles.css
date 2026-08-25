@@ -597,6 +597,38 @@
       border-top: 1px solid var(--line);
     }
 
+    .tuner {
+      display: grid;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .tuner-notes {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+
+    .tuner-note {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      min-height: 34px;
+      padding: 0;
+      justify-self: center;
+      border-color: var(--line);
+      border-radius: 50%;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .tuner-note.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
     .check-label {
       display: flex;
       align-items: center;
@@ -639,6 +671,7 @@
       .session-panel > .small:first-child,
       .session-panel .keyboard,
       .session-panel .metronome-settings,
+      .session-panel .tuner,
       .session-panel #stopButton {
         grid-column: 1 / -1;
       }

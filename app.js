@@ -39,6 +39,9 @@
       timerId: null,
       audioContext: null,
       metronomeId: null,
+      tunerOscillator: null,
+      tunerGain: null,
+      tunerFrequency: null,
       beat: 0,
       descriptionOpen: true,
       metronome: loadMetronomeSettings()
@@ -85,7 +88,8 @@
       tempoText: document.querySelector("#tempoText"),
       beatDots: Array.from(document.querySelectorAll(".beat span")),
       beatsPerBarInput: document.querySelector("#beatsPerBarInput"),
-      muteFirstClickInput: document.querySelector("#muteFirstClickInput")
+      muteFirstClickInput: document.querySelector("#muteFirstClickInput"),
+      tunerButtons: Array.from(document.querySelectorAll(".tuner-note"))
     };
 
     function loadItems() {
@@ -623,13 +627,11 @@
 
       const interval = 60000 / item.bpm;
       state.beat = 0;
-      if (!state.metronome.muteFirstClick) playClick(true);
+      playClick(state.metronome.muteFirstClick);
       renderBeat(0);
       state.metronomeId = setInterval(() => {
         state.beat = (state.beat + 1) % state.metronome.beatsPerBar;
-        if (!(state.metronome.muteFirstClick && state.beat === 0)) {
-          playClick(state.beat === 0);
-        }
+        playClick(state.metronome.muteFirstClick && state.beat === 0);
         renderBeat(state.beat);
       }, interval);
     }
@@ -638,6 +640,44 @@
       clearInterval(state.metronomeId);
       state.metronomeId = null;
       renderBeat(-1);
+    }
+
+    function stopTuner() {
+      if (state.tunerOscillator) {
+        state.tunerOscillator.stop();
+        state.tunerOscillator.disconnect();
+      }
+      state.tunerGain?.disconnect();
+      state.tunerOscillator = null;
+      state.tunerGain = null;
+      state.tunerFrequency = null;
+      nodes.tunerButtons.forEach((button) => {
+        button.classList.remove("active");
+        button.setAttribute("aria-pressed", "false");
+      });
+    }
+
+    function toggleTuner(frequency, button) {
+      if (state.tunerFrequency === frequency) {
+        stopTuner();
+        return;
+      }
+
+      stopTuner();
+      const context = getAudioContext();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.value = 0.08;
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      state.tunerOscillator = oscillator;
+      state.tunerGain = gain;
+      state.tunerFrequency = frequency;
+      button.classList.add("active");
+      button.setAttribute("aria-pressed", "true");
     }
 
     function renderMetronomeSettings() {
@@ -723,6 +763,9 @@
       state.metronome.muteFirstClick = nodes.muteFirstClickInput.checked;
       saveMetronomeSettings();
       if (state.running && !state.paused) syncMetronome();
+    });
+    nodes.tunerButtons.forEach((button) => {
+      button.addEventListener("click", () => toggleTuner(Number(button.dataset.frequency), button));
     });
     nodes.resetButton.addEventListener("click", () => {
       if (state.running) return;
