@@ -46,6 +46,7 @@
       tunerFrequency: null,
       beat: 0,
       descriptionOpen: true,
+      phoneMode: false,
       metronome: loadMetronomeSettings()
     };
 
@@ -63,6 +64,7 @@
       imageLabel: document.querySelector("#imageLabel"),
       imageFileButton: document.querySelector("#imageFileButton"),
       imageUrlInput: document.querySelector("#imageUrlInput"),
+      phoneModeInput: document.querySelector("#phoneModeInput"),
       editorPanel: document.querySelector("#editorPanel"),
       addButton: document.querySelector("#addButton"),
       cancelEditButton: document.querySelector("#cancelEditButton"),
@@ -248,7 +250,7 @@
       nodes.progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
 
       if (state.finished) {
-        nodes.viewer.classList.remove("exercise-viewer");
+        nodes.viewer.classList.remove("exercise-viewer", "rotated-exercise");
         nodes.sessionState.textContent = "Сессия завершена";
         nodes.sessionTitle.textContent = "Лента пройдена полностью";
         nodes.nowTitle.textContent = "Занятие завершено";
@@ -268,7 +270,7 @@
       }
 
       if (!state.running || !item) {
-        nodes.viewer.classList.remove("exercise-viewer");
+        nodes.viewer.classList.remove("exercise-viewer", "rotated-exercise");
         nodes.sessionState.textContent = "Сессия не запущена";
         nodes.sessionTitle.textContent = "Подготовьте ленту и нажмите старт";
         nodes.nowTitle.textContent = "Нет активного упражнения";
@@ -291,7 +293,7 @@
       nodes.nowTitle.textContent = item.title;
 
       if (item.type === "rest") {
-        nodes.viewer.classList.remove("exercise-viewer");
+        nodes.viewer.classList.remove("exercise-viewer", "rotated-exercise");
         nodes.tempoText.textContent = "Пауза без метронома";
         const upcoming = nextExercise(state.activeIndex);
         const preview = upcoming?.image
@@ -310,9 +312,10 @@
         `;
       } else {
         nodes.viewer.classList.add("exercise-viewer");
+        nodes.viewer.classList.toggle("rotated-exercise", Boolean(item.image && state.phoneMode));
         nodes.tempoText.textContent = `${item.bpm} BPM`;
         nodes.viewer.innerHTML = item.image
-          ? `<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">${item.description ? `<details class="exercise-notes"${state.descriptionOpen ? " open" : ""}><summary>Описание упражнения</summary><p>${escapeHtml(item.description)}</p></details>` : ""}`
+          ? `${state.phoneMode ? '<button class="mobile-view-close" type="button" data-action="disable-phone-mode">Выйти из режима телефона</button>' : ""}<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">${item.description ? `<details class="exercise-notes"${state.descriptionOpen ? " open" : ""}><summary>Описание упражнения</summary><p>${escapeHtml(item.description)}</p></details>` : ""}`
           : `<div class="empty"><div><strong>${escapeHtml(item.title)}</strong><span>Картинка не выбрана.</span></div></div>`;
       }
 
@@ -792,6 +795,18 @@
     });
     nodes.imageUrlInput.addEventListener("input", () => {
       if (nodes.imageUrlInput.value.trim()) nodes.imageInput.value = "";
+    });
+    nodes.phoneModeInput.addEventListener("change", () => {
+      state.phoneMode = nodes.phoneModeInput.checked;
+      document.querySelector(".app").classList.toggle("phone-mode", state.phoneMode);
+      renderStage();
+    });
+    nodes.viewer.addEventListener("click", (event) => {
+      if (!event.target.matches("[data-action='disable-phone-mode']")) return;
+      state.phoneMode = false;
+      nodes.phoneModeInput.checked = false;
+      document.querySelector(".app").classList.remove("phone-mode");
+      renderStage();
     });
     nodes.beatsPerBarInput.addEventListener("change", () => {
       state.metronome.beatsPerBar = Number(nodes.beatsPerBarInput.value);
