@@ -1,7 +1,32 @@
     :root {
+      color-scheme: dark;
+      --bg: #151a17;
+      --panel: #1d2520;
+      --surface: #242d27;
+      --field: #171d19;
+      --soft: #2b362e;
+      --ink: #f1f5ef;
+      --muted: #b5c0b7;
+      --line: #435148;
+      --accent: #61b69c;
+      --accent-dark: #8ad1bb;
+      --accent-soft: #254e41;
+      --warn: #df9b69;
+      --danger: #f08b8b;
+      --danger-soft: #3b2525;
+      --topbar: rgba(29, 37, 32, .88);
+      --progress-track: #3b4740;
+      --beat-off: #47534b;
+      --shadow: 0 14px 36px rgba(0, 0, 0, .28);
+    }
+
+    :root.light-theme {
       color-scheme: light;
       --bg: #f4f1eb;
       --panel: #fffdfa;
+      --surface: #fdfbf7;
+      --field: #fff;
+      --soft: #f7f4ef;
       --ink: #20201f;
       --muted: #696763;
       --line: #d8d1c7;
@@ -10,6 +35,10 @@
       --accent-soft: #d9ece8;
       --warn: #a05529;
       --danger: #a83d3d;
+      --danger-soft: #fff5f2;
+      --topbar: rgba(255, 253, 250, .84);
+      --progress-track: #ede7dd;
+      --beat-off: #e6ded2;
       --shadow: 0 14px 36px rgba(43, 38, 31, .12);
     }
 
@@ -134,7 +163,7 @@
     .editor-panel {
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fdfbf7;
+      background: var(--surface);
     }
 
     .editor-panel summary {
@@ -156,7 +185,7 @@
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 10px;
-      background: #f7f4ef;
+      background: var(--soft);
     }
 
     .segmented button {
@@ -168,7 +197,7 @@
     .segmented button.active {
       background: var(--panel);
       color: var(--ink);
-      box-shadow: 0 4px 12px rgba(30, 28, 25, .08);
+      box-shadow: var(--shadow);
     }
 
     label {
@@ -186,7 +215,7 @@
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fff;
+      background: var(--field);
       color: var(--ink);
       padding: 9px 11px;
       outline: none;
@@ -229,7 +258,7 @@
       padding: 0 12px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fff;
+      background: var(--field);
       color: var(--ink);
       font-size: 13px;
       white-space: nowrap;
@@ -246,13 +275,13 @@
 
     .ghost {
       border-color: var(--line);
-      background: #fff;
+      background: var(--field);
       color: var(--ink);
     }
 
     .danger {
-      border-color: rgba(168, 61, 61, .3);
-      background: #fff5f2;
+      border-color: var(--danger);
+      background: var(--danger-soft);
       color: var(--danger);
     }
 
@@ -298,7 +327,7 @@
       padding: 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fff;
+      background: var(--field);
     }
 
     .feed-item.active {
@@ -312,7 +341,7 @@
       width: 54px;
       height: 50px;
       border-radius: 6px;
-      background: #eee9df;
+      background: var(--soft);
       overflow: hidden;
       color: var(--muted);
       font-size: 22px;
@@ -348,7 +377,7 @@
       min-height: 34px;
       padding: 0;
       border-color: var(--line);
-      background: #fff;
+      background: var(--field);
       color: var(--muted);
       font-size: 18px;
       line-height: 1;
@@ -361,7 +390,7 @@
       align-items: center;
       padding: 14px 20px;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 253, 250, .84);
+      background: var(--topbar);
       backdrop-filter: blur(8px);
     }
 
@@ -399,7 +428,7 @@
       place-items: center;
       min-height: 0;
       padding: 0;
-      background: #fdfbf7;
+      background: var(--surface);
     }
 
     .viewer.exercise-viewer {
@@ -417,7 +446,7 @@
       object-fit: contain;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #fff;
+      background: var(--field);
     }
 
     .viewer.exercise-viewer img {
@@ -490,13 +519,13 @@
       object-fit: contain;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #fff;
+      background: var(--field);
     }
 
     .progress {
       height: 5px;
       border-radius: 0;
-      background: #ede7dd;
+      background: var(--progress-track);
       overflow: hidden;
     }
 
@@ -542,7 +571,7 @@
     .beat span {
       height: 10px;
       border-radius: 999px;
-      background: #e6ded2;
+      background: var(--beat-off);
     }
 
     .beat span.on {
@@ -562,7 +591,7 @@
       overflow: auto;
       border: 1px solid var(--line);
       border-radius: 7px;
-      background: #fff;
+      background: var(--field);
       color: var(--ink);
     }
 
@@ -620,7 +649,7 @@
       justify-self: center;
       border-color: var(--line);
       border-radius: 50%;
-      background: #fff;
+      background: var(--field);
       color: var(--ink);
     }
 
@@ -647,6 +676,14 @@
     .fullscreen-button {
       display: inline-flex;
       align-items: center;
+      min-height: 32px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .theme-toggle {
       min-height: 32px;
       padding: 0 10px;
       border-radius: 999px;
@@ -772,7 +809,8 @@
       }
     }
 
-    .practice:fullscreen {
+    .practice:fullscreen,
+    .practice:-webkit-full-screen {
       display: grid;
       grid-template-rows: minmax(0, 1fr) auto;
       width: 100vw;
@@ -782,17 +820,38 @@
       background: #111;
     }
 
-    .practice:fullscreen .viewer {
+    .practice:fullscreen .viewer,
+    .practice:-webkit-full-screen .viewer {
       background: #111;
     }
 
-    .practice:fullscreen .viewer.exercise-viewer img {
+    .practice:fullscreen .viewer.exercise-viewer img,
+    .practice:-webkit-full-screen .viewer.exercise-viewer img {
       border: 0;
       border-radius: 0;
     }
 
-    .practice:fullscreen .exercise-notes {
+    .practice:fullscreen .exercise-notes,
+    .practice:-webkit-full-screen .exercise-notes {
       display: none;
+    }
+
+    .exit-fullscreen {
+      display: none;
+    }
+
+    .practice:fullscreen .exit-fullscreen,
+    .practice:-webkit-full-screen .exit-fullscreen {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      z-index: 2;
+      display: block;
+      min-height: 40px;
+      padding: 0 14px;
+      border-color: rgba(255, 255, 255, .65);
+      background: rgba(0, 0, 0, .65);
+      color: #fff;
     }
 
     @media (max-width: 940px) and (max-height: 620px) and (orientation: landscape) {

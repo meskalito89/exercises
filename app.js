@@ -1,5 +1,6 @@
     const STORAGE_KEY = "guitar-practice-feed-v1";
     const METRONOME_KEY = "guitar-practice-metronome-v1";
+    const THEME_KEY = "guitar-practice-theme-v1";
     const EXERCISES_TREE_API_URL = "https://api.github.com/repos/meskalito89/exercises/git/trees/master?recursive=1";
     const EXERCISES_RAW_BASE_URL = "https://raw.githubusercontent.com/meskalito89/exercises/master/";
 
@@ -47,6 +48,7 @@
       beat: 0,
       descriptionOpen: true,
       selectedIndex: -1,
+      theme: loadTheme(),
       metronome: loadMetronomeSettings()
     };
 
@@ -65,6 +67,8 @@
       imageFileButton: document.querySelector("#imageFileButton"),
       imageUrlInput: document.querySelector("#imageUrlInput"),
       fullscreenButton: document.querySelector("#fullscreenButton"),
+      exitFullscreenButton: document.querySelector("#exitFullscreenButton"),
+      themeToggle: document.querySelector("#themeToggle"),
       practice: document.querySelector(".practice"),
       editorPanel: document.querySelector("#editorPanel"),
       addButton: document.querySelector("#addButton"),
@@ -112,6 +116,27 @@
 
     function saveItems() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    }
+
+    function loadTheme() {
+      try {
+        return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+      } catch {
+        return "dark";
+      }
+    }
+
+    function renderTheme() {
+      const isDark = state.theme === "dark";
+      document.documentElement.classList.toggle("light-theme", !isDark);
+      nodes.themeToggle.textContent = `Тема: ${isDark ? "тёмная" : "светлая"}`;
+      nodes.themeToggle.setAttribute("aria-pressed", String(isDark));
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === "dark" ? "light" : "dark";
+      localStorage.setItem(THEME_KEY, state.theme);
+      renderTheme();
     }
 
     function loadMetronomeSettings() {
@@ -760,11 +785,22 @@
     }
 
     async function enterFullscreen() {
-      if (!nodes.practice.requestFullscreen) return;
+      const requestFullscreen = nodes.practice.requestFullscreen || nodes.practice.webkitRequestFullscreen;
+      if (!requestFullscreen) return;
       try {
-        await nodes.practice.requestFullscreen();
+        await requestFullscreen.call(nodes.practice);
       } catch {
         // The browser may reject fullscreen when it was not triggered by a user gesture.
+      }
+    }
+
+    async function exitFullscreen() {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (!exit) return;
+      try {
+        await exit.call(document);
+      } catch {
+        // Some mobile browsers leave fullscreen without returning a promise.
       }
     }
 
@@ -870,6 +906,8 @@
       if (nodes.imageUrlInput.value.trim()) nodes.imageInput.value = "";
     });
     nodes.fullscreenButton.addEventListener("click", enterFullscreen);
+    nodes.exitFullscreenButton.addEventListener("click", exitFullscreen);
+    nodes.themeToggle.addEventListener("click", toggleTheme);
     nodes.metronomeButton.addEventListener("click", toggleMetronome);
     nodes.metronomeBpmInput.addEventListener("change", () => {
       state.metronome.bpm = Math.min(260, Math.max(30, Number(nodes.metronomeBpmInput.value) || 80));
@@ -942,6 +980,7 @@
     });
 
     setMode("exercise");
+    renderTheme();
     renderMetronomeSettings();
     renderFeed();
     renderStage();
