@@ -46,7 +46,7 @@
       tunerFrequency: null,
       beat: 0,
       descriptionOpen: true,
-      phoneMode: false,
+      selectedIndex: -1,
       metronome: loadMetronomeSettings()
     };
 
@@ -64,7 +64,8 @@
       imageLabel: document.querySelector("#imageLabel"),
       imageFileButton: document.querySelector("#imageFileButton"),
       imageUrlInput: document.querySelector("#imageUrlInput"),
-      phoneModeInput: document.querySelector("#phoneModeInput"),
+      fullscreenButton: document.querySelector("#fullscreenButton"),
+      practice: document.querySelector(".practice"),
       editorPanel: document.querySelector("#editorPanel"),
       addButton: document.querySelector("#addButton"),
       cancelEditButton: document.querySelector("#cancelEditButton"),
@@ -92,6 +93,8 @@
       nowTitle: document.querySelector("#nowTitle"),
       timer: document.querySelector("#timer"),
       tempoText: document.querySelector("#tempoText"),
+      metronomeButton: document.querySelector("#metronomeButton"),
+      metronomeBpmInput: document.querySelector("#metronomeBpmInput"),
       beatDots: Array.from(document.querySelectorAll(".beat span")),
       beatsPerBarInput: document.querySelector("#beatsPerBarInput"),
       muteFirstClickInput: document.querySelector("#muteFirstClickInput"),
@@ -116,10 +119,12 @@
         const saved = JSON.parse(localStorage.getItem(METRONOME_KEY));
         return {
           beatsPerBar: Math.min(8, Math.max(2, Number(saved?.beatsPerBar) || 4)),
-          muteFirstClick: Boolean(saved?.muteFirstClick)
+          muteFirstClick: Boolean(saved?.muteFirstClick),
+          bpm: Math.min(260, Math.max(30, Number(saved?.bpm) || 80)),
+          enabled: false
         };
       } catch {
-        return { beatsPerBar: 4, muteFirstClick: false };
+        return { beatsPerBar: 4, muteFirstClick: false, bpm: 80, enabled: false };
       }
     }
 
@@ -187,7 +192,13 @@
 
       state.items.forEach((item, index) => {
         const row = document.createElement("div");
-        row.className = `feed-item${index === state.activeIndex || index === state.editingIndex ? " active" : ""}`;
+        row.className = `feed-item${index === state.activeIndex || index === state.selectedIndex || index === state.editingIndex ? " active" : ""}${item.type === "exercise" ? " selectable" : ""}`;
+        if (item.type === "exercise") {
+          row.tabIndex = 0;
+          row.setAttribute("role", "button");
+          row.setAttribute("aria-label", `Выбрать упражнение: ${item.title}`);
+          row.dataset.selectIndex = String(index);
+        }
 
         const thumb = document.createElement("div");
         thumb.className = "thumb";
@@ -231,7 +242,7 @@
     }
 
     function renderStage() {
-      const item = state.items[state.activeIndex];
+      const item = state.items[state.running ? state.activeIndex : state.selectedIndex];
       const left = state.running
         ? totalDuration(state.activeIndex + 1) + state.remaining
         : totalDuration(0);
@@ -243,6 +254,7 @@
       nodes.pauseButton.disabled = !state.running;
       nodes.skipButton.disabled = !state.running;
       nodes.stopButton.disabled = !state.running;
+      nodes.fullscreenButton.disabled = !item || item.type !== "exercise" || !item.image;
 
       const progress = state.initialRemaining
         ? ((state.initialRemaining - state.remaining) / state.initialRemaining) * 100
@@ -254,7 +266,7 @@
         nodes.sessionState.textContent = "Сессия завершена";
         nodes.sessionTitle.textContent = "Лента пройдена полностью";
         nodes.nowTitle.textContent = "Занятие завершено";
-        nodes.tempoText.textContent = "Метроном готов";
+        renderMetronomeStatus();
         nodes.timer.textContent = "00:00";
         nodes.viewer.innerHTML = `
           <div class="finish-screen">
@@ -264,17 +276,17 @@
             </div>
           </div>
         `;
-        renderBeat(-1);
+        if (!state.metronome.enabled) renderBeat(-1);
         renderFeed();
         return;
       }
 
-      if (!state.running || !item) {
+      if (!state.running && !item) {
         nodes.viewer.classList.remove("exercise-viewer", "rotated-exercise");
         nodes.sessionState.textContent = "Сессия не запущена";
         nodes.sessionTitle.textContent = "Подготовьте ленту и нажмите старт";
         nodes.nowTitle.textContent = "Нет активного упражнения";
-        nodes.tempoText.textContent = "Метроном готов";
+        renderMetronomeStatus();
         nodes.viewer.innerHTML = `
           <div class="empty">
             <div>
@@ -283,18 +295,18 @@
             </div>
           </div>
         `;
-        renderBeat(-1);
+        if (!state.metronome.enabled) renderBeat(-1);
         renderFeed();
         return;
       }
 
-      nodes.sessionState.textContent = state.paused ? "Пауза на месте" : "Сессия идет";
-      nodes.sessionTitle.textContent = `${state.activeIndex + 1} из ${state.items.length}`;
+      nodes.sessionState.textContent = state.running ? (state.paused ? "Пауза на месте" : "Сессия идет") : "Упражнение выбрано";
+      nodes.sessionTitle.textContent = state.running ? `${state.activeIndex + 1} из ${state.items.length}` : "Нажмите «Старт», чтобы начать с него";
       nodes.nowTitle.textContent = item.title;
 
       if (item.type === "rest") {
         nodes.viewer.classList.remove("exercise-viewer", "rotated-exercise");
-        nodes.tempoText.textContent = "Пауза без метронома";
+        renderMetronomeStatus();
         const upcoming = nextExercise(state.activeIndex);
         const preview = upcoming?.image
           ? `<img src="${escapeAttribute(githubRawUrl(upcoming.image))}" alt="${escapeAttribute(upcoming.title)}">`
@@ -312,10 +324,9 @@
         `;
       } else {
         nodes.viewer.classList.add("exercise-viewer");
-        nodes.viewer.classList.toggle("rotated-exercise", Boolean(item.image && state.phoneMode));
-        nodes.tempoText.textContent = `${item.bpm} BPM`;
+        renderMetronomeStatus();
         nodes.viewer.innerHTML = item.image
-          ? `${state.phoneMode ? '<button class="mobile-view-close" type="button" data-action="disable-phone-mode">Выйти из режима телефона</button>' : ""}<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">${item.description ? `<details class="exercise-notes"${state.descriptionOpen ? " open" : ""}><summary>Описание упражнения</summary><p>${escapeHtml(item.description)}</p></details>` : ""}`
+          ? `<img src="${escapeAttribute(githubRawUrl(item.image))}" alt="${escapeAttribute(item.title)}">${item.description ? `<details class="exercise-notes"${state.descriptionOpen ? " open" : ""}><summary>Описание упражнения</summary><p>${escapeHtml(item.description)}</p></details>` : ""}`
           : `<div class="empty"><div><strong>${escapeHtml(item.title)}</strong><span>Картинка не выбрана.</span></div></div>`;
       }
 
@@ -453,8 +464,11 @@
       state.items.splice(nextIndex, 0, item);
       if (state.editingIndex === index) state.editingIndex = nextIndex;
       else if (state.editingIndex === nextIndex) state.editingIndex = index;
+      if (state.selectedIndex === index) state.selectedIndex = nextIndex;
+      else if (state.selectedIndex === nextIndex) state.selectedIndex = index;
       saveItems();
       renderFeed();
+      renderStage();
     }
 
     function deleteItem(index) {
@@ -462,6 +476,8 @@
       state.items.splice(index, 1);
       if (state.editingIndex === index) clearEditor();
       else if (state.editingIndex > index) state.editingIndex -= 1;
+      if (state.selectedIndex === index) state.selectedIndex = -1;
+      else if (state.selectedIndex > index) state.selectedIndex -= 1;
       saveItems();
       renderFeed();
       renderStage();
@@ -497,12 +513,15 @@
       if (parsed?.metronome && typeof parsed.metronome === "object") {
         state.metronome = {
           beatsPerBar: Math.min(8, Math.max(2, Number(parsed.metronome.beatsPerBar) || 4)),
-          muteFirstClick: Boolean(parsed.metronome.muteFirstClick)
+          muteFirstClick: Boolean(parsed.metronome.muteFirstClick),
+          bpm: Math.min(260, Math.max(30, Number(parsed.metronome.bpm) || 80)),
+          enabled: false
         };
         saveMetronomeSettings();
         renderMetronomeSettings();
       }
       state.finished = false;
+      state.selectedIndex = -1;
       clearEditor(true);
       saveItems();
       renderFeed();
@@ -523,7 +542,7 @@
 
     function startSession() {
       if (!state.items.length) return;
-      state.activeIndex = 0;
+      state.activeIndex = state.selectedIndex >= 0 ? state.selectedIndex : 0;
       state.running = true;
       state.paused = false;
       state.finished = false;
@@ -541,6 +560,8 @@
       state.initialRemaining = item.duration;
       state.beat = 0;
       state.descriptionOpen = true;
+      if (item.type === "exercise") state.metronome.bpm = item.bpm;
+      renderMetronomeSettings();
       renderStage();
       startTimer();
       syncMetronome();
@@ -563,7 +584,6 @@
 
     function nextItem() {
       clearInterval(state.timerId);
-      stopMetronome();
       state.activeIndex += 1;
       beginItem();
     }
@@ -577,7 +597,6 @@
 
     function stopSession() {
       clearInterval(state.timerId);
-      stopMetronome();
       state.activeIndex = -1;
       state.remaining = 0;
       state.initialRemaining = 0;
@@ -585,18 +604,20 @@
       state.paused = false;
       state.finished = false;
       renderStage();
+      syncMetronome();
     }
 
     function finishSession() {
       clearInterval(state.timerId);
-      stopMetronome();
       state.running = false;
       state.paused = false;
       state.finished = true;
       state.activeIndex = -1;
+      state.selectedIndex = -1;
       state.remaining = 0;
       state.initialRemaining = 0;
       renderStage();
+      syncMetronome();
     }
 
     function getAudioContext() {
@@ -628,13 +649,12 @@
 
     function syncMetronome() {
       stopMetronome();
-      const item = state.items[state.activeIndex];
-      if (!state.running || state.paused || !item || item.type !== "exercise") {
+      if (!state.metronome.enabled) {
         renderBeat(-1);
         return;
       }
 
-      const interval = 60000 / item.bpm;
+      const interval = 60000 / state.metronome.bpm;
       state.beat = 0;
       playClick(state.metronome.muteFirstClick);
       renderBeat(0);
@@ -692,7 +712,60 @@
     function renderMetronomeSettings() {
       nodes.beatsPerBarInput.value = String(state.metronome.beatsPerBar);
       nodes.muteFirstClickInput.checked = state.metronome.muteFirstClick;
+      nodes.metronomeBpmInput.value = String(state.metronome.bpm);
+      nodes.metronomeButton.textContent = state.metronome.enabled ? "Выключить метроном" : "Включить метроном";
+      nodes.metronomeButton.setAttribute("aria-pressed", String(state.metronome.enabled));
       renderBeat(-1);
+    }
+
+    function renderMetronomeStatus() {
+      nodes.tempoText.textContent = state.metronome.enabled
+        ? `Метроном включен · ${state.metronome.bpm} BPM`
+        : `Метроном выключен · ${state.metronome.bpm} BPM`;
+      nodes.metronomeBpmInput.value = String(state.metronome.bpm);
+      nodes.metronomeButton.textContent = state.metronome.enabled ? "Выключить метроном" : "Включить метроном";
+      nodes.metronomeButton.setAttribute("aria-pressed", String(state.metronome.enabled));
+    }
+
+    function toggleMetronome() {
+      state.metronome.enabled = !state.metronome.enabled;
+      syncMetronome();
+      renderStage();
+    }
+
+    function selectExercise(index) {
+      const item = state.items[index];
+      if (!item || item.type !== "exercise") return;
+
+      state.selectedIndex = index;
+      if (state.running) {
+        clearInterval(state.timerId);
+        state.activeIndex = index;
+        state.remaining = item.duration;
+        state.initialRemaining = item.duration;
+        state.descriptionOpen = true;
+        state.metronome.bpm = item.bpm;
+        renderMetronomeSettings();
+        renderStage();
+        startTimer();
+        syncMetronome();
+        return;
+      }
+
+      state.remaining = item.duration;
+      state.initialRemaining = item.duration;
+      state.metronome.bpm = item.bpm;
+      renderStage();
+      syncMetronome();
+    }
+
+    async function enterFullscreen() {
+      if (!nodes.practice.requestFullscreen) return;
+      try {
+        await nodes.practice.requestFullscreen();
+      } catch {
+        // The browser may reject fullscreen when it was not triggered by a user gesture.
+      }
     }
 
     function githubRawUrl(url) {
@@ -796,28 +869,24 @@
     nodes.imageUrlInput.addEventListener("input", () => {
       if (nodes.imageUrlInput.value.trim()) nodes.imageInput.value = "";
     });
-    nodes.phoneModeInput.addEventListener("change", () => {
-      state.phoneMode = nodes.phoneModeInput.checked;
-      document.querySelector(".app").classList.toggle("phone-mode", state.phoneMode);
-      renderStage();
-    });
-    nodes.viewer.addEventListener("click", (event) => {
-      if (!event.target.matches("[data-action='disable-phone-mode']")) return;
-      state.phoneMode = false;
-      nodes.phoneModeInput.checked = false;
-      document.querySelector(".app").classList.remove("phone-mode");
+    nodes.fullscreenButton.addEventListener("click", enterFullscreen);
+    nodes.metronomeButton.addEventListener("click", toggleMetronome);
+    nodes.metronomeBpmInput.addEventListener("change", () => {
+      state.metronome.bpm = Math.min(260, Math.max(30, Number(nodes.metronomeBpmInput.value) || 80));
+      saveMetronomeSettings();
+      if (state.metronome.enabled) syncMetronome();
       renderStage();
     });
     nodes.beatsPerBarInput.addEventListener("change", () => {
       state.metronome.beatsPerBar = Number(nodes.beatsPerBarInput.value);
       saveMetronomeSettings();
-      if (state.running && !state.paused) syncMetronome();
+      if (state.metronome.enabled) syncMetronome();
       else renderBeat(-1);
     });
     nodes.muteFirstClickInput.addEventListener("change", () => {
       state.metronome.muteFirstClick = nodes.muteFirstClickInput.checked;
       saveMetronomeSettings();
-      if (state.running && !state.paused) syncMetronome();
+      if (state.metronome.enabled) syncMetronome();
     });
     nodes.tunerButtons.forEach((button) => {
       button.addEventListener("click", () => toggleTuner(Number(button.dataset.frequency), button));
@@ -825,6 +894,7 @@
     nodes.resetButton.addEventListener("click", () => {
       if (state.running) return;
       state.items = structuredClone(defaultItems);
+      state.selectedIndex = -1;
       clearEditor();
       saveItems();
       renderFeed();
@@ -832,12 +902,23 @@
     });
     nodes.feedList.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-action]");
-      if (!button) return;
+      if (!button) {
+        const row = event.target.closest("[data-select-index]");
+        if (row) selectExercise(Number(row.dataset.selectIndex));
+        return;
+      }
       const index = Number(button.dataset.index);
       if (button.dataset.action === "edit") fillEditor(state.items[index], index);
       if (button.dataset.action === "up") moveItem(index, -1);
       if (button.dataset.action === "down") moveItem(index, 1);
       if (button.dataset.action === "delete") deleteItem(index);
+    });
+    nodes.feedList.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const row = event.target.closest("[data-select-index]");
+      if (!row) return;
+      event.preventDefault();
+      selectExercise(Number(row.dataset.selectIndex));
     });
     nodes.startButton.addEventListener("click", startSession);
     nodes.pauseButton.addEventListener("click", togglePause);

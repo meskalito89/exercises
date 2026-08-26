@@ -428,10 +428,6 @@
       object-fit: contain;
     }
 
-    .mobile-view-close {
-      display: none;
-    }
-
     .empty,
     .rest-screen,
     .finish-screen {
@@ -648,25 +644,27 @@
       accent-color: var(--accent);
     }
 
-    .phone-mode-toggle {
+    .fullscreen-button {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
       min-height: 32px;
       padding: 0 10px;
-      border: 1px solid var(--line);
       border-radius: 999px;
-      background: #fff;
-      color: var(--ink);
       font-size: 13px;
-      font-weight: 650;
       white-space: nowrap;
     }
 
-    .phone-mode-toggle input {
-      width: 16px;
-      min-height: auto;
-      accent-color: var(--accent);
+    .feed-item.selectable {
+      cursor: pointer;
+    }
+
+    .feed-item.selectable:hover {
+      border-color: var(--accent);
+    }
+
+    .feed-item.selectable:focus-visible {
+      outline: 3px solid var(--accent-soft);
+      outline-offset: 2px;
     }
 
     .hidden {
@@ -764,59 +762,6 @@
         padding: 0;
       }
 
-      .viewer.exercise-viewer.rotated-exercise {
-        position: fixed;
-        inset: 0;
-        z-index: 30;
-        display: grid;
-        grid-template-rows: minmax(0, 1fr);
-        place-items: center;
-        min-height: 100vh;
-        min-height: 100dvh;
-        padding: 0;
-        overflow: hidden;
-        background: #111;
-      }
-
-      .viewer.exercise-viewer.rotated-exercise img {
-        width: 100vh;
-        width: 100dvh;
-        height: 100vw;
-        max-width: none;
-        max-height: none;
-        align-self: center;
-        justify-self: center;
-        transform: rotate(90deg);
-        border: 0;
-        border-radius: 0;
-      }
-
-      .viewer.exercise-viewer.rotated-exercise .exercise-notes {
-        display: none;
-      }
-
-      .viewer.exercise-viewer.rotated-exercise .mobile-view-close {
-        position: fixed;
-        top: calc(env(safe-area-inset-top) + 12px);
-        left: 12px;
-        z-index: 1;
-        display: block;
-        min-height: 36px;
-        padding: 0 12px;
-        border-color: rgba(255, 255, 255, .65);
-        background: rgba(0, 0, 0, .58);
-        color: #fff;
-      }
-
-      .app.phone-mode > aside,
-      .app.phone-mode .topbar {
-        display: none;
-      }
-
-      .app.phone-mode .session-panel > :not(.controls) {
-        display: none;
-      }
-
       .practice {
         min-height: calc(100vh - 32px);
       }
@@ -825,6 +770,29 @@
         grid-template-columns: 1fr;
         align-items: stretch;
       }
+    }
+
+    .practice:fullscreen {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      border-radius: 0;
+      background: #111;
+    }
+
+    .practice:fullscreen .viewer {
+      background: #111;
+    }
+
+    .practice:fullscreen .viewer.exercise-viewer img {
+      border: 0;
+      border-radius: 0;
+    }
+
+    .practice:fullscreen .exercise-notes {
+      display: none;
     }
 
     @media (max-width: 940px) and (max-height: 620px) and (orientation: landscape) {

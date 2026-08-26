@@ -98,7 +98,7 @@
         <div class="stats">
           <span class="pill">Всего: <strong id="totalTime">00:00</strong></span>
           <span class="pill">Осталось: <strong id="leftTime">00:00</strong></span>
-          <label class="phone-mode-toggle"><input id="phoneModeInput" type="checkbox"> Режим телефона</label>
+          <button id="fullscreenButton" class="ghost fullscreen-button" type="button" disabled>Полный экран</button>
         </div>
       </header>
 
@@ -119,6 +119,11 @@
           </div>
           <p class="small" id="tempoText">Метроном готов</p>
           <div class="metronome-settings" aria-label="Настройки метронома">
+            <button id="metronomeButton" class="ghost" type="button" aria-pressed="false">Включить метроном</button>
+            <label>
+              Темп метронома, BPM
+              <input id="metronomeBpmInput" type="number" min="30" max="260" value="80">
+            </label>
             <label>
               Долей в такте
               <select id="beatsPerBarInput">
