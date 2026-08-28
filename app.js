@@ -572,6 +572,7 @@
       state.paused = false;
       state.finished = false;
       beginItem();
+      toggleMetronome();
     }
 
     function beginItem() {
@@ -630,6 +631,7 @@
       state.finished = false;
       renderStage();
       syncMetronome();
+      stopMetronome();
     }
 
     function finishSession() {
@@ -661,7 +663,7 @@
       const gain = context.createGain();
       const now = context.currentTime;
 
-      oscillator.type = "square";
+      oscillator.type = "sine";
       oscillator.frequency.setValueAtTime(isAccent ? 1320 : 880, now);
       gain.gain.setValueAtTime(isAccent ? 0.24 : 0.16, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
@@ -688,6 +690,12 @@
         playClick(state.metronome.muteFirstClick && state.beat === 0);
         renderBeat(state.beat);
       }, interval);
+    }
+
+    function startMetronome() {
+      clearInterval(state.metronomeId);
+      renderBeat(-1);
+      toggleMetronome();
     }
 
     function stopMetronome() {
