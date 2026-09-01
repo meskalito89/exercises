@@ -319,7 +319,7 @@
     }
 
     .feed-item {
-      display: grid;
+      /* display: grid; */
       grid-template-columns: 54px 1fr auto;
       align-items: center;
       gap: 12px;
