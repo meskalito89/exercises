@@ -6,6 +6,7 @@
 
     const EXERCISES_GITHUB_URL = "https://github.com/meskalito89/exercises/blob/master/exercises/";
     const exerciseImage = (filename) => `${EXERCISES_GITHUB_URL}${filename}`;
+    const EXERCISES_BASE = "https://github.com/meskalito89/exercises/blob/master/exercises/base.json"
     const defaultItems = [
       { type: "rest", title: "отдых", duration: 10 },
       { type: "exercise", title: "Гитарные арпеджио 1-4", duration: 300, bpm: 50, image: exerciseImage("1_gitarnye_arpedgio_1-4.jpg") },
@@ -937,6 +938,7 @@
     nodes.tunerButtons.forEach((button) => {
       button.addEventListener("click", () => toggleTuner(Number(button.dataset.frequency), button));
     });
+    
     nodes.resetButton.addEventListener("click", () => {
       if (state.running) return;
       state.items = structuredClone(defaultItems);
